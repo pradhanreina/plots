@@ -5,188 +5,201 @@ package plots;
  *  it represents, and how to use it.
  *
  *  @author reinapradhan
- *  @version Jun 15, 2021
+ *  @version Jun 19, 2021
  */
 
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.util.*;
-import javax.swing.*;
+    /**
+     *  Write a one-sentence summary of your class here.
+     *  Follow it with additional details about its purpose, what abstraction
+     *  it represents, and how to use it.
+     *
+     *  @author reinapradhan
+     *  @version Jun 15, 2021
+     */
 
-public class ScatterPlot extends JPanel
-{
-    //~ Fields ................................................................
-    //JFrame frame;
-    //JPanel panel;
+    import java.awt.*;
+    import java.awt.geom.AffineTransform;
+    import java.util.*;
+    import javax.swing.*;
 
-    int xscale;
-    int yscale;
-
-    int xmax;
-    int ymax;
-
-    String dependant;
-    String independant;
-    String title;
-
-    ArrayList<DataPoint> data;
-
-    //~ Constructors ..........................................................
-    public ScatterPlot(ArrayList<DataPoint> data, String title,
-        String dependant, String independant)
+    public class ScatterPlot extends JPanel
     {
-        this.data = data;
-        this.dependant = dependant;
-        this.independant = independant;
-        this.title = title;
-    }
+        //~ Fields ................................................................
+        //JFrame frame;
+        //JPanel panel;
 
-    //~Public  Methods ........................................................
+        int xscale;
+        int yscale;
 
-    @Override
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        /*Graphics2D g2d = (Graphics2D)g;
-        AffineTransform orig = g2d.getTransform();
+        int xmax;
+        int ymax;
 
-        AffineTransform at = new AffineTransform();
-        at.setToRotation(Math.toRadians(270),  50, (getHeight() - 30)/2);
-        g2d.setTransform(at);
-        //g2.drawString("This is a vertical text", 10, 10);
+        String dependant;
+        String independant;
+        String title;
 
-       // g2d.rotate(Math.toRadians(270.0));
-        g2d.drawString(dependant, 50,200);
-        //(getHeight() - 30)/2
-        g2d.setTransform(orig);*/
+        ArrayList<DataPoint> data;
 
-        g.drawLine(40, 50, 40, getHeight() - 30);
-        g.drawLine( 40, getHeight() - 30, getWidth() - 50, getHeight() - 30);
-
-        g.drawString(title, getWidth()/2 - title.length()/2, 25);
-
-       xscale =  (getWidth() - 90)/(getXmax() );
-       int count = 0;
-       int threshold = getXmax()/5;
-       // x <= getWidth() - 50
-       for (int x = 40 ; count < getXmax(); x++)
+        //~ Constructors ..........................................................
+        public ScatterPlot(ArrayList<DataPoint> data, String title,
+            String dependant, String independant)
         {
-            if ((x - 40) % xscale == 0 && x != 40)
+            this.data = data;
+            this.dependant = dependant;
+            this.independant = independant;
+            this.title = title;
+        }
+
+        // ~Public Methods
+        // ........................................................
+
+
+        @Override
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            int axisOriginX = (int)(getWidth() * 0.1);
+            int axisOriginY = (int)(getHeight() * 0.1);
+            int xAxisMax = (int)(getWidth() * 0.9);
+            int yAxisMax = (int)(getHeight() * 0.9);
+            int xAxisWidth = (int)(getWidth() * 0.8);
+            int yAxisHeight = (int)(getHeight() * 0.8);
+
+            // Draw X-axis
+            g.drawLine(axisOriginX, yAxisMax, xAxisMax, yAxisMax);
+            // Draw Y-axis
+            g.drawLine(axisOriginX, axisOriginY, axisOriginX, yAxisMax);
+            // Draw Title
+            g.drawString(title, getWidth() / 2 - title.length() / 2, 25);
+
+
+
+            int numOfXTicks = 5;
+            int numOfYTicks = 5;
+
+            int xMax = getXmax() + numOfXTicks;
+            int yMax = getYmax() + numOfYTicks;
+
+            int xIncrementVisual = (int)(xAxisWidth / numOfXTicks);
+            int yIncrementVisual = (int)(yAxisHeight / numOfYTicks);
+
+            int xIncrementValue = (int)(xMax/ numOfXTicks);
+            int yIncrementValue = (int)(yMax / numOfYTicks);
+
+            // Drawing X - Axis "Ticks"
+            int xValueHeight = (int)(0.95 * getHeight());
+            for (int x = 0; x <= numOfXTicks; x++)
             {
+                int xValue = x * xIncrementValue;
+                int xPosition = axisOriginX + (x * xIncrementVisual);
+                // value label
+                g.drawString(xValue + "", xPosition, xValueHeight);
+                // "tick"
+                g.drawLine(xPosition, yAxisMax - 5, xPosition, yAxisMax + 5);
 
-                count ++;
+            }
 
-                if (count % threshold == 0)
+            // Drawing Y - Axis "Ticks"
+            int yValueWidth = (int)(0.05 * getWidth());
+            for (int y = 0; y <= numOfYTicks; y++)
+            {
+                int yValue = (numOfYTicks - y) * yIncrementValue;
+                int yPosition = axisOriginY + y * yIncrementVisual;
+                // value label
+                g.drawString(yValue + "", yValueWidth, yPosition);
+                // "tick"
+                g.drawLine(axisOriginX - 5, yPosition, axisOriginX + 5, yPosition);
+            }
+
+            for (DataPoint data : data)
+            {
+                int x = data.getX();
+                int y = data.getY();
+
+                float xScaled = (float)((float)x / (float)xMax);
+                float yScaled = (float)((float)y / (float)yMax);
+
+                int xPosition = (int)(axisOriginX + (xScaled * xAxisWidth));
+                int yPosition = (int)(yAxisMax - (yScaled * yAxisHeight));
+
+                g.fillOval(xPosition - 3, yPosition - 3, 6, 6);
+
+            }
+
+        }
+
+
+        public void addPoint(DataPoint point)
+        {
+            data.add(point);
+        }
+
+        public int getXmax()
+        {
+            int max = data.get(0).getX();
+
+            for(int i = 0; i < data.size(); i++)
+            {
+                if (data.get(i).getX() > max)
                 {
-                    g.drawString(count + "", x - 5, getHeight() - 8);
-                    g.drawLine(x, getHeight() - 35, x, getHeight() - 25 );
-
+                    max = data.get(i).getX();
                 }
             }
 
 
+            return max;
         }
 
-       yscale =  (getHeight() - 80 )/(getYmax() );
-       int countY = 0;
-       int thresholdY = getYmax()/5;
-       //y >= 50
-       for (int y = getHeight() - 30 ; countY < getYmax() ; y--)
+        public int getYmax()
         {
-            if (y  % yscale == 0)
+            int max = data.get(0).getY();
+
+            for(int i = 0; i < data.size(); i++)
             {
-
-                countY ++;
-                if (countY % thresholdY == 0)
+                if (data.get(i).getY() > max)
                 {
-                    g.drawString(countY + "", 10, y + 5);
-                    g.drawLine(35, y, 45, y );
-
+                    max = data.get(i).getY();
                 }
             }
 
-
+            return max;
         }
 
-       for (DataPoint data : data)
-       {
-           int xPos = xscale * data.getX() + 40;
-           int yPos =  getHeight() -  ( yscale * data.getY()) + 50;
 
-           g.fillOval(xPos - 4, yPos - 4, 8, 8);
-       }
-
-
-    }
-
-
-    public void addPoint(DataPoint point)
-    {
-        data.add(point);
-    }
-
-    public int getXmax()
-    {
-        int max = data.get(0).getX();
-
-        for(int i = 0; i < data.size(); i++)
+        public static void main(String[] args)
         {
-            if (data.get(i).getX() > max)
-            {
-                max = data.get(i).getX();
-            }
+            ArrayList<DataPoint> sampleData = new ArrayList<DataPoint>();
+
+            JFrame frame = new JFrame("Scatter Plot 2");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            ScatterPlot sp = new ScatterPlot(sampleData, "Scatterplot - Test", "dependant - variable",
+                "independant - variable");
+
+            sp.addPoint(new DataPoint(1,2));
+            sp.addPoint(new DataPoint(1,3));
+            sp.addPoint(new DataPoint(2,4));
+            sp.addPoint(new DataPoint(3,5));
+            sp.addPoint(new DataPoint(5,2));
+            sp.addPoint(new DataPoint(7,10));
+            sp.addPoint(new DataPoint(8,4));
+            sp.addPoint(new DataPoint(9,1));
+            sp.addPoint(new DataPoint(10,7));
+            sp.addPoint(new DataPoint(20,7));
+            //sp.addPoint(new DataPoint(50,7));
+            //sp.addPoint(new DataPoint(100,7));
+           // sp.addPoint(new DataPoint(200,7));
+           // sp.addPoint(new DataPoint(200,180));
+
+
+            frame.add(sp);
+            frame.setSize(475,475);
+            frame.setVisible(true);
+
+
         }
-
-
-        return max;
-    }
-
-    public int getYmax()
-    {
-        int max = data.get(0).getY();
-
-        for(int i = 0; i < data.size(); i++)
-        {
-            if (data.get(i).getY() > max)
-            {
-                max = data.get(i).getY();
-            }
-        }
-
-        return max;
     }
 
 
-    public static void main(String[] args)
-    {
-        ArrayList<DataPoint> sampleData = new ArrayList<DataPoint>();
 
-        JFrame frame = new JFrame("Scatter Plot");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        ScatterPlot sp = new ScatterPlot(sampleData, "Scatterplot - Test", "dependant - variable",
-            "independant - variable");
-
-        sp.addPoint(new DataPoint(1,2));
-        sp.addPoint(new DataPoint(1,3));
-        sp.addPoint(new DataPoint(2,4));
-        sp.addPoint(new DataPoint(3,5));
-        sp.addPoint(new DataPoint(5,2));
-        sp.addPoint(new DataPoint(7,10));
-        sp.addPoint(new DataPoint(8,4));
-        sp.addPoint(new DataPoint(9,1));
-        sp.addPoint(new DataPoint(10,7));
-        sp.addPoint(new DataPoint(20,7));
-        sp.addPoint(new DataPoint(50,7));
-        sp.addPoint(new DataPoint(100,7));
-       // sp.addPoint(new DataPoint(200,7));
-       // sp.addPoint(new DataPoint(200,180));
-
-
-        frame.add(sp);
-        frame.setSize(500,500);
-        frame.setVisible(true);
-
-
-    }
-}
