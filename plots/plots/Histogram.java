@@ -21,13 +21,13 @@ public class Histogram extends JPanel
     String independant;
     String title;
 
-    ArrayList<Residual> residuals;
+    ArrayList<DataPoint> data;
 
     //~ Constructors ..........................................................
-    public Histogram(ArrayList<Residual> data, String title,
+    public Histogram(ArrayList<DataPoint> data, String title,
         String dependant, String independant)
     {
-        residuals = data;
+        this.data = data;
         this.dependant = dependant;
         this.independant = independant;
         this.title = title;
@@ -79,11 +79,11 @@ public class Histogram extends JPanel
             g.drawLine(location, yAxisMax, location, yAxisMax +10 );
         }
 
-        //place residuals into bins
+        //place data into bins
         int[] bins = new int[7];
-        for (int r = 0; r < residuals.size(); r++)
+        for (int r = 0; r < data.size(); r++)
         {
-            int resid = residuals.get(r).getResid();
+            int resid = data.get(r).getX();
             int bin = resid / xIntervalValue;
 
             bins[bin]++;
@@ -108,13 +108,51 @@ public class Histogram extends JPanel
         System.out.println("max bin: " + maxBin);
 
         int numYlabels = 5;
+        int tempMax = maxBin + numYlabels;
 
         if (maxBin < numYlabels)
         {
             numYlabels = maxBin;
+            tempMax = maxBin;
+
         }
 
         System.out.println("num Y labes: " + numYlabels);
+
+        int yIntervalValue = tempMax / numYlabels;
+        int yIntervalVisual = yAxisHeight / numYlabels;
+
+        // Drawing Y - Axis "Ticks"
+        int yValueWidth = (int)(0.05 * getWidth());
+        for (int y = 0; y <= numYlabels; y++)
+        {
+            int yValue = (numYlabels - y) * yIntervalValue;
+            int yPosition = axisOriginY + y * yIntervalVisual;
+            // value label
+            g.drawString(yValue + "", yValueWidth, yPosition);
+            // "tick"
+            g.drawLine(axisOriginX - 5, yPosition, axisOriginX + 5, yPosition);
+        }
+
+        //Drawing Bars
+        int yIntervalBar = yAxisHeight / tempMax;
+
+        for(int bin = 0; bin < bins.length; bin++)
+        {
+            int barWidth = xIntervalVisual;
+            int barHeight = bins[bin]*yIntervalBar;
+
+            int barX = axisOriginX + bin * xIntervalVisual;
+            int barY = yAxisMax - bins[bin] * yIntervalBar;
+
+            g.drawRect(barX, barY, barWidth, barHeight);
+        }
+
+
+
+
+
+
 
 
     }
@@ -123,9 +161,9 @@ public class Histogram extends JPanel
      * Adds a data point to the data set
      * @param point
      */
-    public void addResidual(Residual resid)
+    public void addData(DataPoint point)
     {
-        residuals.add(resid);
+        data.add(point);
     }
 
     /**
@@ -134,13 +172,13 @@ public class Histogram extends JPanel
      */
     public int getMax()
     {
-        int max = residuals.get(0).getResid();
+        int max = data.get(0).getX();
 
-        for(int i = 0; i < residuals.size(); i++)
+        for(int i = 0; i < data.size(); i++)
         {
-            if (residuals.get(i).getResid() > max)
+            if (data.get(i).getX() > max)
             {
-                max = residuals.get(i).getResid();
+                max = data.get(i).getX();
             }
         }
 
@@ -155,22 +193,28 @@ public class Histogram extends JPanel
      */
     public static void main(String[] args)
     {
-        ArrayList<Residual> sampleData = new ArrayList<Residual>();
+        ArrayList<DataPoint> sampleData = new ArrayList<DataPoint>();
         Histogram hist = new Histogram(sampleData, "title", "idependant", "independant");
+
+        hist.addData(new DataPoint(1));
+        hist.addData(new DataPoint(2));
+        hist.addData(new DataPoint(2));
+        hist.addData(new DataPoint(2));
+        hist.addData(new DataPoint(2));
+        hist.addData(new DataPoint(2));
+        hist.addData(new DataPoint(3));
+        hist.addData(new DataPoint(4));
+        hist.addData(new DataPoint(5));
+        hist.addData(new DataPoint(6));
+        hist.addData(new DataPoint(7));
+        hist.addData(new DataPoint(8));
+        hist.addData(new DataPoint(9));
+        hist.addData(new DataPoint(50));
+
 
         JFrame frame = new JFrame("Histogram");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        hist.addResidual(new Residual(1));
-        hist.addResidual(new Residual(2));
-        hist.addResidual(new Residual(3));
-        hist.addResidual(new Residual(4));
-        hist.addResidual(new Residual(5));
-        hist.addResidual(new Residual(6));
-        hist.addResidual(new Residual(7));
-        hist.addResidual(new Residual(8));
-        hist.addResidual(new Residual(9));
-        hist.addResidual(new Residual(10));
 
 
 

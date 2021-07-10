@@ -19,6 +19,11 @@ public class DataPoint
         this.x = x;
         this.y = y;
     }
+
+    public DataPoint(int x)
+    {
+        this.x = x;
+    }
     //~Public  Methods ........................................................
     public int getX()
     {

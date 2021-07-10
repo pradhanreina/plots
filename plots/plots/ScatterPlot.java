@@ -48,6 +48,7 @@ package plots;
             this.dependant = dependant;
             this.independant = independant;
             this.title = title;
+
         }
 
         // ~Public Methods
@@ -196,7 +197,6 @@ package plots;
             frame.add(sp);
             frame.setSize(475,475);
             frame.setVisible(true);
-
 
         }
     }
